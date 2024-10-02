@@ -19,9 +19,13 @@ const sample = `# Sample quiz
 describe("importQuizFromMarkdown", () => {
   it("imports simple quiz", () => {
     const quiz = importQuizFromMarkdown(sample);
-    console.log(quiz)
 
     assert.strictEqual(quiz.title, "Sample quiz");
     assert.strictEqual(quiz.questions.length, 2);
+
+    assert.deepStrictEqual(quiz.questions[1].answers[1], {
+      correct: true,
+      label: "42",
+    });
   });
 });

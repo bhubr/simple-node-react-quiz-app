@@ -28,14 +28,26 @@ function importQuizFromMarkdown(markdown) {
 
   let questionTitle = "";
   const questions = [];
+  let question = {};
   for (; i < lines.length; i++) {
-    console.log(lines[i])
     if (lines[i].startsWith("## ")) {
       questionTitle = lines[i].slice(3);
-      questions.push({
+      question = {
         title: questionTitle,
-      });
+        answers: [],
+      };
+
+      questions.push(question);
       continue;
+    }
+    const answerMatch = lines[i].match(/^(-|\*) \[( |x)\] (.*)/);
+    if (answerMatch) {
+      const [, , xOrBlank, label] = answerMatch;
+      const correct = xOrBlank === "x";
+      question.answers.push({
+        correct,
+        label,
+      });
     }
   }
   return {
