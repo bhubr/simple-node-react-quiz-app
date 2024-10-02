@@ -1,3 +1,7 @@
+const { resolve } = require("node:path");
+// const { readdirSync } = require("fs")
+const { readdir, readFile, writeFile } = require("node:fs/promises");
+
 // export interface IAnswer {
 //   label: string;
 //   correct: boolean;
@@ -51,13 +55,41 @@ function importQuizFromMarkdown(markdown) {
     }
   }
   return {
-    id: 1,
+    id: Date.now().toString(16),
     title,
     tags: [],
     questions,
   };
 }
 
+const quizzesDir = resolve(__dirname, "..", "..", "quizzes");
+
+async function readJSON(f) {
+  return JSON.parse(await readFile(f, "utf-8"));
+}
+
+async function writeJSON(f, d) {
+  await writeFile(f, JSON.stringify(d));
+}
+
+async function readQuizzes() {
+  const files = (await readdir(quizzesDir)).filter((f) => f.endsWith(".json"));
+  return Promise.all(files.map(f => readJSON(resolve(quizzesDir, f))));
+}
+
+const slug = (str) => str.replace(/ +/g, "-").toLowerCase();
+
+async function markdownToJSON(mdFile) {
+  const content = await readFile(mdFile, "utf-8");
+  const quiz = importQuizFromMarkdown(content);
+  const jsonFileName = slug(`${quiz.id}-${quiz.title}.json`);
+  console.log(jsonFileName, quiz);
+  const jsonFilePath = resolve(quizzesDir, jsonFileName)
+  await writeJSON(jsonFilePath, quiz);
+}
+
 module.exports = {
   importQuizFromMarkdown,
+  readQuizzes,
+  markdownToJSON,
 };
