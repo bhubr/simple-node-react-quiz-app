@@ -1,5 +1,5 @@
-import app from "./app";
-import { port } from "./settings";
+const app = require("./app");
+const { port } = require("./settings");
 
 app.listen(port, () => {
   console.log(`Listening on port ${port}`);
