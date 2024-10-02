@@ -12,6 +12,14 @@ function Quiz({ quiz, onClose }) {
         {currentIndex + 1}/{quiz.questions.length} -{" "}
         {quiz.questions[currentIndex].title}
       </h3>
+      {quiz.questions[currentIndex].answers.map((a, aIdx) => (
+        <div key={a.label}>
+          <label htmlFor={`q${currentIndex}-a${aIdx}`}>
+            <input id={`q${currentIndex}-a${aIdx}`} type="checkbox" />{" "}
+          {a.label}
+          </label>
+          </div>
+      ))}
     </div>
   );
 }
