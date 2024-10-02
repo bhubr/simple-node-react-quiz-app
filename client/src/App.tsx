@@ -1,26 +1,45 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 
+function Quiz({ quiz, onClose }) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  return (
+    <div>
+      <div style={{ textAlign: "right" }}>
+        <button onClick={onClose}>X</button>
+      </div>
+      <h3>
+        {currentIndex + 1}/{quiz.questions.length} -{" "}
+        {quiz.questions[currentIndex].title}
+      </h3>
+    </div>
+  );
+}
+
 function App() {
-  const [message, setMessage] = useState("N/A");
+  const [quizzes, setQuizzes] = useState([]);
+  const [currentQuiz, setCurrentQuiz] = useState(null);
 
   useEffect(() => {
-    fetch("http://localhost:5000")
+    fetch("http://localhost:5000/quizzes")
       .then((res) => res.json())
-      .then((data) => setMessage(data.message));
+      .then(setQuizzes);
   }, []);
+
+  const onCloseQuiz = () => setCurrentQuiz(null);
 
   return (
     <>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <p>
-          Message from server: <strong>{message}</strong>
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <h1>Quiz app</h1>
+      {currentQuiz ? (
+        <Quiz quiz={currentQuiz} onClose={onCloseQuiz} />
+      ) : (
+        quizzes.map((q) => (
+          <button key={q.id} onClick={() => setCurrentQuiz(q)}>
+            {q.title}
+          </button>
+        ))
+      )}
     </>
   );
 }
