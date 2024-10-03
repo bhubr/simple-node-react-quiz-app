@@ -1,12 +1,25 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { Routes, Route, Link, useParams } from "react-router-dom";
 import "./App.css";
 
-function Quiz({ quiz, onClose }) {
+function Quiz({ quizzes }) {
+  // const { }
   const [currentIndex, setCurrentIndex] = useState(0);
+  const { quizId } = useParams();
+
+  console.log(quizzes, quizId)
+
+  const quiz = useMemo(
+    () => quizzes.find((q) => q.id === quizId),
+    [quizzes, quizId]
+  );
+  if (!quiz) {
+    return <p>Loading&hellip;</p>
+  }
   return (
     <div>
       <div style={{ textAlign: "right" }}>
-        <button onClick={onClose}>X</button>
+        <Link to="/">X</Link>
       </div>
       <h3>
         {currentIndex + 1}/{quiz.questions.length} -{" "}
@@ -15,18 +28,28 @@ function Quiz({ quiz, onClose }) {
       {quiz.questions[currentIndex].answers.map((a, aIdx) => (
         <div key={a.label}>
           <label htmlFor={`q${currentIndex}-a${aIdx}`}>
-            <input id={`q${currentIndex}-a${aIdx}`} type="checkbox" />{" "}
-          {a.label}
+            <input id={`q${currentIndex}-a${aIdx}`} type="checkbox" /> {a.label}
           </label>
-          </div>
+        </div>
       ))}
     </div>
   );
 }
 
+function Home({ quizzes }) {
+  return (
+    <>
+      {quizzes.map((q) => (
+        <Link key={q.id} to={`/quizzes/${q.id}`}>
+          {q.title}
+        </Link>
+      ))}
+    </>
+  );
+}
+
 function App() {
   const [quizzes, setQuizzes] = useState([]);
-  const [currentQuiz, setCurrentQuiz] = useState(null);
 
   useEffect(() => {
     fetch("http://localhost:5000/quizzes")
@@ -34,20 +57,13 @@ function App() {
       .then(setQuizzes);
   }, []);
 
-  const onCloseQuiz = () => setCurrentQuiz(null);
-
   return (
     <>
       <h1>Quiz app</h1>
-      {currentQuiz ? (
-        <Quiz quiz={currentQuiz} onClose={onCloseQuiz} />
-      ) : (
-        quizzes.map((q) => (
-          <button key={q.id} onClick={() => setCurrentQuiz(q)}>
-            {q.title}
-          </button>
-        ))
-      )}
+      <Routes>
+        <Route path="/" element={<Home quizzes={quizzes} />} />
+        <Route path="/quizzes/:quizId" element={<Quiz quizzes={quizzes} />} />
+      </Routes>
     </>
   );
 }
